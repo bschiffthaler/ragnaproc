@@ -1,0 +1,9 @@
+minuser: 1000
+maxuser: null
+maxtime: 300
+maxrss: 200000000
+poll: 5
+deny:
+  - pattern: "^/mnt/picea/storage/Modules/.*"
+  - pattern: "^/usr/bin/rsync$"
+  - pattern: "^/opt/zoom/zoom$"
