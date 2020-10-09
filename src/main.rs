@@ -7,7 +7,6 @@ use std::error::Error;
 use std::fs::canonicalize;
 use std::fs::File;
 use std::io::BufReader;
-use std::io::Write;
 use std::{thread, time};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -50,12 +49,15 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("Polling /proc every {:?}s", &interval);
     loop {
         for p in all_processes()? {
-            let stat = p.stat()?;
+            let stat = match p.stat() {
+                Ok(s) => s,
+                Err(_e) => continue,
+            };
             if p.owner >= minuser && p.owner <= maxuser {
                 let pid = stat.pid;
                 let real_exe = match canonicalize(format!("/proc/{}/exe", &pid)) {
                     Ok(exe) => String::from(exe.to_str().unwrap()),
-                    Err(_msg) => String::from("IOErr"),
+                    Err(_msg) => continue,
                 };
                 let rss = stat.rss;
                 let time = stat.utime / tps + stat.stime / tps;
